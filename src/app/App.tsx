@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4, type UUIDTypes } from "uuid";
 import { type ITodoItem } from "../entities/TodoItem/ui";
 
 import Container from "../shared/Container/Container";
@@ -24,11 +24,11 @@ function App() {
     setTodos([...todos, newTodo]);
   };
 
-  const onRemoveTodo = (id: string) => {
+  const onRemoveTodo = (id: UUIDTypes) => {
     setTodos([...todos.filter((todo) => todo.id !== id)]);
   };
 
-  const onChangeStatusTodo = (id: string) => {
+  const onChangeStatusTodo = (id: UUIDTypes) => {
     setTodos([
       ...todos.map((todo) =>
         todo.id === id ? { ...todo, completed: !todo.completed } : { ...todo }
@@ -36,12 +36,19 @@ function App() {
     ]);
   };
 
+  const onRemoveAllTodos = () => {
+    setTodos([]);
+  };
+
   return (
     <Container>
       <section className={styles.todo}>
         <h1 className={styles.todo__title}>Todos</h1>
 
-        <Form onAddTodo={onAddTodoHandler} />
+        <Form
+          onAddTodo={onAddTodoHandler}
+          onRemoveAllTodos={onRemoveAllTodos}
+        />
         {todos &&
           todos.map((todo) => (
             <TodoItem
