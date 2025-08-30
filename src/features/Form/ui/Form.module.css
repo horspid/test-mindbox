@@ -1,0 +1,8 @@
+.todo__title {
+  font-size: 2.6rem;
+}
+
+.todo__form {
+  display: flex;
+  gap: 1rem;
+}
