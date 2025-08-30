@@ -1,5 +1,7 @@
 # Test Mindbox
 
+Ссылка на превью тестового задания - https://test-mindbox-sandy.vercel.app/
+
 Для запуска проекта введите следующие команды:
 
 ```cmd
