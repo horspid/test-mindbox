@@ -66,6 +66,7 @@ const App: React.FC = () => {
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
+            onKeyPress={(e) => e.key === "Enter" && addTodo(inputValue)}
             placeholder="What needs to be done?"
           />
           {inputValue && (
