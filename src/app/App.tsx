@@ -1,66 +1,144 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import "./App.css";
+import { v4 as uuidv4 } from "uuid";
 
-import { v4 as uuidv4, type UUIDTypes } from "uuid";
-import { type ITodoItem } from "../entities/TodoItem/ui";
+type FilterType = "all" | "active" | "completed";
 
-import Container from "../shared/Container/Container";
-import styles from "./App.module.css";
+interface Todo {
+  id: string;
+  text: string;
+  completed: boolean;
+}
 
-import { Form } from "../features/Form";
-import { TodoItem } from "../entities/TodoItem";
+const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const [filter, setFilter] = useState<FilterType>("all");
+  const [isExpanded, setIsExpanded] = useState(true);
 
-function App() {
-  const [todos, setTodos] = useState<ITodoItem[]>([]);
-
-  const onAddTodoHandler = (userInput: string) => {
-    if (!userInput) return;
-
-    const newTodo = {
-      id: uuidv4(),
-      name: userInput,
-      completed: false,
-    };
-
-    setTodos([...todos, newTodo]);
+  const addTodo = (text: string) => {
+    if (text.trim()) {
+      setTodos([
+        ...todos,
+        {
+          id: uuidv4(),
+          text,
+          completed: false,
+        },
+      ]);
+      setInputValue("");
+    }
   };
 
-  const onRemoveTodo = (id: UUIDTypes) => {
-    setTodos([...todos.filter((todo) => todo.id !== id)]);
+  const toggleTodo = (id: string) => {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
   };
 
-  const onChangeStatusTodo = (id: UUIDTypes) => {
-    setTodos([
-      ...todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : { ...todo }
-      ),
-    ]);
+  const clearCompleted = () => {
+    setTodos(todos.filter((todo) => !todo.completed));
   };
 
-  const onRemoveAllTodos = () => {
-    setTodos([]);
-  };
+  const filteredTodos = todos.filter((todo) => {
+    if (filter === "active") return !todo.completed;
+    if (filter === "completed") return todo.completed;
+    return true;
+  });
+
+  const activeTodos = todos.filter((todo) => !todo.completed);
 
   return (
-    <Container>
-      <section className={styles.todo}>
-        <h1 className={styles.todo__title}>Todos</h1>
+    <div className="app-container">
+      <h1 className="app-title">todos</h1>
+      <div className="todo-container">
+        <div className="input-container">
+          <button
+            className={`toggle-all ${isExpanded ? "expanded" : ""}`}
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            ❯
+          </button>
+          <input
+            className="todo-input"
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="What needs to be done?"
+          />
+          {inputValue && (
+            <button
+              className="save-todo-btn"
+              onClick={() => addTodo(inputValue)}
+            >
+              +
+            </button>
+          )}
+        </div>
 
-        <Form
-          onAddTodo={onAddTodoHandler}
-          onRemoveAllTodos={onRemoveAllTodos}
-        />
-        {todos &&
-          todos.map((todo) => (
-            <TodoItem
-              data={todo}
-              key={todo.id}
-              removeTodo={onRemoveTodo}
-              changeTodo={onChangeStatusTodo}
-            />
-          ))}
-      </section>
-    </Container>
+        {isExpanded && (
+          <div className="todos-list">
+            {filteredTodos.map((todo) => (
+              <div key={todo.id} className="todo-item">
+                <label className="checkbox-container">
+                  <input
+                    type="checkbox"
+                    checked={todo.completed}
+                    onChange={() => toggleTodo(todo.id)}
+                  />
+                  <span className="checkmark"></span>
+                </label>
+                <span
+                  className={`todo-text ${todo.completed ? "completed" : ""}`}
+                >
+                  {todo.text}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {todos.length > 0 && (
+          <div className="todo-footer">
+            <span className="items-left">
+              {activeTodos.length === 1
+                ? "1 item left"
+                : `${activeTodos.length} items left`}
+            </span>
+            <div className="filters">
+              <button
+                className={`filter-btn ${filter === "all" ? "active" : ""}`}
+                onClick={() => setFilter("all")}
+              >
+                All
+              </button>
+              <button
+                className={`filter-btn ${filter === "active" ? "active" : ""}`}
+                onClick={() => setFilter("active")}
+              >
+                Active
+              </button>
+              <button
+                className={`filter-btn ${
+                  filter === "completed" ? "active" : ""
+                }`}
+                onClick={() => setFilter("completed")}
+              >
+                Completed
+              </button>
+            </div>
+            {todos.some((todo) => todo.completed) && (
+              <button className="clear-completed" onClick={clearCompleted}>
+                Clear completed
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
   );
-}
+};
 
 export default App;
